@@ -4,13 +4,12 @@ const db = require("../db");
 
 
 // Get all universities
-router.get("/", async(req, res) => {
+router.get("/", async(req, res, next) => {
     try {
         const result = await db.query("SELECT * FROM universities ORDER BY id");
         res.json(result.rows);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error");
+        next(err);
     }
 });
 
@@ -18,7 +17,7 @@ router.get("/", async(req, res) => {
 
 
 //Get one university by code
-router.get("/:code", async (req, res) => {
+router.get("/:code", async (req, res, next) => {
     try {
         const { code } = req.params;
 
@@ -53,8 +52,7 @@ router.get("/:code", async (req, res) => {
         res.json(university);
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error");
+        next(err);
     }
 });
 

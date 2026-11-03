@@ -6,7 +6,7 @@ const db = require("../db");
 
 
 // Get all courses
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
     try {
         const result = await db.query(`
             SELECT
@@ -35,8 +35,7 @@ router.get("/", async (req, res) => {
 
         
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error");
+        next(err);
     }
 });
 
@@ -44,7 +43,7 @@ router.get("/", async (req, res) => {
 
 
 // Get course by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -81,8 +80,7 @@ router.get("/:id", async (req, res) => {
         res.json(course);
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error");
+        next(err);
     }
 });
 
