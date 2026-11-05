@@ -1069,3 +1069,305 @@ The long-term objective is to turn EduPath into a polished, reliable, secure and
 **Developer:** Jerry Reneke
 **GitHub:** https://github.com/JerryReneke/EduPath
 **Current Stage:** Phase 1 — Foundation and Project Audit
+
+
+
+
+---
+
+# Development Update — 5 November 2026
+
+## Frontend Improvements
+
+### Completed
+
+Improved the existing EduPath frontend without rebuilding the application from scratch.
+
+Implemented:
+
+- Environment-based API configuration.
+- Reusable API request handling.
+- HTTP response validation.
+- Network error handling.
+- Loading states.
+- Error messages for failed API requests.
+- University detail error handling.
+- Improved course search and filtering.
+- University name and code displayed alongside courses.
+- APS input validation.
+- Empty subject validation.
+- Percentage validation (0–100).
+- Clearing previous APS results when marks change.
+- Functional homepage navigation buttons.
+- Improved university APS comparisons.
+- Correct handling of zero APS scores.
+- Improved eligibility messages.
+- Added a dedicated 404 Not Found page.
+- Added wildcard routing.
+
+### University Recommendation Improvements
+
+Replaced potentially misleading recommendation percentages and Safety/Target/Reach labels with direct APS comparisons.
+
+Students can now see:
+
+- Their APS score.
+- The university's listed APS requirement.
+- How many APS points they are above or below the requirement.
+
+Important limitation:
+
+Meeting a listed APS threshold does not guarantee admission. Subject-specific and programme requirements must also be considered.
+
+The current APS scoring system remains provisional.
+
+---
+
+## Frontend Architecture Migration — Create React App to Vite
+
+### Completed
+
+Migrated the frontend from Create React App to Vite.
+
+Removed:
+
+- react-scripts.
+- Create React App build configuration.
+- Create React App development scripts.
+- Old Create React App HTML entry point.
+- Old Create React App starter test.
+
+Installed:
+
+- Vite 8.3.6.
+- @vitejs/plugin-react 6.2.1.
+- React Router 7.18.3.
+
+Created:
+
+- client/vite.config.mjs.
+- New root client/index.html.
+
+Updated:
+
+- Frontend entry point from index.js to index.jsx.
+- JSX-containing application files to .jsx extensions.
+- API environment variable from REACT_APP_API_URL to VITE_API_URL.
+- Frontend environment configuration.
+- Development, build and preview scripts.
+
+Preserved:
+
+- Existing React components.
+- CSS and application styling.
+- React state management.
+- React Router navigation.
+- API integration.
+- PostgreSQL backend communication.
+- Public assets.
+
+The frontend continues using port 3000, with the Express backend on port 5000.
+
+The local client/.env file remains excluded from Git.
+
+### Production Build Results
+
+Successfully generated the Vite production build.
+
+Latest verification:
+
+- 35 modules transformed.
+- JavaScript bundle: 192.20 kB.
+- JavaScript gzip size: 62.48 kB.
+- CSS bundle: 6.17 kB.
+- Build completed successfully.
+
+Production output is generated in client/dist.
+
+---
+
+## Frontend Automated Testing
+
+### Completed
+
+Replaced the Create React App testing system with Vitest.
+
+Installed:
+
+- Vitest 5.1.0.
+- jsdom.
+- React Testing Library.
+- Jest DOM testing assertions.
+
+Created:
+
+- client/src/test/setup.js.
+- client/src/components/APSCalculator.test.jsx.
+- client/src/components/Courses.test.jsx.
+- client/src/components/Universities.test.jsx.
+- client/src/components/UniversityDetail.test.jsx.
+
+Configured automatic cleanup between tests.
+
+### Frontend Test Results
+
+Latest results:
+
+| Component | Tests Passed |
+|---|---:|
+| APS Calculator | 6 |
+| Courses | 6 |
+| Universities | 6 |
+| University Detail | 5 |
+| Total | 23 |
+
+- Tests executed: 23.
+- Tests passed: 23.
+- Tests failed: 0.
+- Test suites passed: 4.
+
+All 23 frontend automated tests passed.
+
+### What I Learned
+
+- Vitest.
+- jsdom.
+- React Testing Library.
+- Component testing.
+- Mocking API requests.
+- Testing asynchronous React components.
+- Testing validation.
+- Testing loading and error states.
+- Automated test cleanup.
+
+---
+
+## Updated Security Audit Results
+
+### Frontend
+
+- Migrated away from Create React App.
+- Removed outdated build tooling.
+- Updated React Router.
+- Applied compatible dependency updates.
+- Added Vite and Vitest.
+
+Final full frontend audit:
+
+0 vulnerabilities.
+
+### Backend
+
+Final backend security audit:
+
+0 vulnerabilities.
+
+Both frontend and backend dependency trees currently report zero known vulnerabilities.
+
+---
+
+## Final Backend Verification
+
+Repeated the complete backend automated test suite after the frontend migration.
+
+Latest results:
+
+- Tests executed: 11.
+- Tests passed: 11.
+- Tests failed: 0.
+
+All backend integration tests passed.
+
+Backend security audit also returned zero vulnerabilities.
+
+---
+
+## Current Development Status — 5 November 2026
+
+Project: EduPath
+
+Current phase: Phase 1 — Foundation and Project Audit.
+
+### Completed Milestones
+
+- Initial application foundation.
+- React frontend.
+- Express backend.
+- PostgreSQL integration.
+- Full-stack API communication.
+- Git and GitHub integration.
+- Backend architecture restructuring.
+- Backend error handling.
+- APS input validation.
+- Frontend API improvements.
+- University and course filtering.
+- Frontend routing and 404 handling.
+- Create React App to Vite migration.
+- Frontend automated testing.
+- Backend automated testing.
+- Frontend production build.
+- Zero reported frontend dependency vulnerabilities.
+- Zero reported backend dependency vulnerabilities.
+
+### Current GitHub Milestones
+
+Latest published commit:
+
+0dd01cb — Improve frontend validation and error handling.
+
+Repository:
+
+https://github.com/JerryReneke/EduPath
+
+The Vite migration and automated frontend testing changes are awaiting their next Git commit.
+
+### Remaining Phase 1 Activities
+
+1. Review the complete project changes.
+2. Verify Git configuration and environment-file protection.
+3. Publish the Vite migration and automated frontend testing changes.
+4. Perform the final application verification.
+5. Confirm Phase 1 completion.
+
+### Next Development Phase
+
+Phase 2 — UI/UX Design and Redesign.
+
+Planned focus:
+
+- EduPath visual identity.
+- Modern and professional interface.
+- Improved dashboard layout.
+- Better university and course cards.
+- Responsive design.
+- Improved navigation and user experience.
+
+---
+
+## Important Technical Limitations
+
+The following remain future development priorities:
+
+### APS Calculation Engine
+
+- The current APS formula is provisional.
+- Frontend and backend calculation methods still require unification.
+- Official university-specific APS rules must be researched.
+- Subject-specific admission requirements must be supported.
+- Life Orientation treatment must reflect each institution's rules.
+
+### University and Course Data
+
+- Current records remain a demonstration dataset.
+- More South African institutions and qualifications must be added.
+- APS requirements must be verified against official university sources.
+- Admission eligibility must eventually consider additional programme requirements.
+
+### Future Technical Improvements
+
+- APS state persistence.
+- Additional frontend tests.
+- Authentication and student accounts.
+- University comparison functionality.
+- AWS deployment.
+- CI/CD pipelines.

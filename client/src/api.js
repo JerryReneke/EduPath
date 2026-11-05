@@ -1,6 +1,6 @@
 
 const API_BASE_URL =
-    process.env.REACT_APP_API_URL || "http://localhost:5000";
+    import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // Reusable API request handler
 const apiRequest = async (endpoint, options = {}) => {
