@@ -1,170 +1,256 @@
+
 import { useEffect, useState } from "react";
 import { getUniversities } from "../api";
 import UniversityCard from "./UniversityCard";
 
-
 function Universities({ apsScore }) {
-
     const [search, setSearch] = useState("");
     const [universities, setUniversities] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
+    // Check whether a valid APS score exists
+    const hasApsScore =
+        apsScore !== null &&
+        apsScore !== undefined &&
+        String(apsScore).trim() !== "" &&
+        Number.isFinite(Number(apsScore));
+
+    const numericApsScore = hasApsScore
+        ? Number(apsScore)
+        : null;
+
+    // Load universities from backend
     useEffect(() => {
         const loadUniversities = async () => {
             try {
                 const data = await getUniversities();
                 setUniversities(data);
-                console.log(data);
             } catch (error) {
                 console.error("Error fetching universities:", error);
+
+                setError(
+                    error.message ||
+                    "Unable to load universities. Please try again."
+                );
+            } finally {
+                setLoading(false);
             }
         };
 
         loadUniversities();
     }, []);
 
-    const filteredUniversities = universities.filter(uni =>
-        uni.code.toLowerCase().includes(search.toLowerCase()) ||
-        uni.name.toLowerCase().includes(search.toLowerCase())
+    // Search universities by name or code
+    const normalizedSearch = search.trim().toLowerCase();
+
+    const filteredUniversities = universities.filter((uni) =>
+        String(uni.name || "").toLowerCase().includes(normalizedSearch) ||
+        String(uni.code || "").toLowerCase().includes(normalizedSearch)
     );
 
-   
-    const getQualification = (uni) => {
-        if (apsScore === null) return "";
+    // Calculate the difference between student APS and university APS
+    const universitiesWithComparison = universities.map((uni) => {
+        const requirement = Number(uni.aps);
 
-        return apsScore >= uni.aps
-            ? "✅ You qualify"
-            : "❌ You do not qualify";
-    };
+        const hasRequirement =
+            uni.aps !== null &&
+            uni.aps !== undefined &&
+            uni.aps !== "" &&
+            Number.isFinite(requirement);
 
-
-    const universitiesWithScore = universities.map((uni) => {
-        const requirement = uni.aps;
-
-        if (!apsScore || !requirement) {
-            return { ...uni, match: 0 };
-        }
-
-        const match = (Number(apsScore) / requirement) * 100;
+        const difference =
+            hasApsScore && hasRequirement
+                ? numericApsScore - requirement
+                : null;
 
         return {
             ...uni,
-            match: Math.min(Math.round(match), 100)
+            hasRequirement,
+            apsDifference: difference,
         };
     });
 
+    // Sort universities by their distance from the student's APS
+    const sortedUniversities = [...universitiesWithComparison].sort(
+        (a, b) => {
+            if (!hasApsScore) {
+                return String(a.name || "").localeCompare(
+                    String(b.name || "")
+                );
+            }
 
-    const sortedUniversities = universitiesWithScore.sort(
-        (a, b) => b.match - a.match
+            if (a.apsDifference === null) return 1;
+            if (b.apsDifference === null) return -1;
+
+            return (
+                Math.abs(a.apsDifference) -
+                Math.abs(b.apsDifference)
+            );
+        }
     );
 
+    // Universities where the student meets the listed APS threshold
+    const eligibleUniversities = universitiesWithComparison.filter(
+        (uni) =>
+            uni.apsDifference !== null &&
+            uni.apsDifference >= 0
+    );
 
-    const eligibleUniversities = universities.filter((uni) => {
-        const requirement = uni.aps;
+    // Describe the APS comparison
+    const getApsComparison = (uni) => {
+        if (!hasApsScore) {
+            return "Calculate your APS score first.";
+        }
 
-        if (!apsScore || !requirement) return false;
+        if (uni.apsDifference === null) {
+            return "APS requirement unavailable.";
+        }
 
-        return apsScore >= requirement;
-    });
+        if (uni.apsDifference > 0) {
+            return `${uni.apsDifference} APS points above the listed threshold.`;
+        }
 
+        if (uni.apsDifference < 0) {
+            return `${Math.abs(uni.apsDifference)} APS points below the listed threshold.`;
+        }
 
-    
-    const getBadge = (uni) => {
-        if (!apsScore) return "";
-
-
-        const ratio = apsScore / uni.aps;
-
-        if (ratio >= 1.2) return "Safety";
-        if (ratio >= 1.0) return "Target";
-        return "Reach";
+        return "Your APS exactly meets the listed threshold.";
     };
 
+    // Qualification message
+    const getQualification = (uni) => {
+        if (!hasApsScore) return "";
+
+        if (uni.apsDifference === null) {
+            return "APS requirement unavailable.";
+        }
+
+        return uni.apsDifference >= 0
+            ? "You meet the listed APS threshold."
+            : "You are below the listed APS threshold.";
+    };
+
+    // Loading state
+    if (loading) {
+        return <p>Loading universities...</p>;
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div role="alert">
+                <h2>Unable to load universities</h2>
+                <p>{error}</p>
+            </div>
+        );
+    }
 
     return (
-        
-        <section className="universities">
+        <section className="universities" id="universities">
 
-            <h2>Universities You Can Apply To</h2>
+            {/* Eligible universities */}
+            <h2>Universities Where You Meet the Listed APS Threshold</h2>
 
             <div className="university-cards">
+
                 {eligibleUniversities.length > 0 ? (
                     eligibleUniversities.map((uni) => (
                         <UniversityCard
-                            key = {uni.card}
+                            key={uni.id ?? uni.code}
                             university={uni}
                         >
                             <p>
                                 <strong>APS Requirement:</strong> {uni.aps}
                             </p>
 
-                            <p>✅ You qualify</p>
-
-                        </UniversityCard>    
-
+                            <p>✅ You meet the listed APS threshold.</p>
+                        </UniversityCard>
                     ))
                 ) : (
-                    <p>No universities match your APS yet. Try increasing your score.</p>
-                
+                    <p>
+                        {hasApsScore
+                            ? "No universities currently meet the listed APS threshold for your score."
+                            : "Calculate your APS score to see which universities meet their listed APS thresholds."
+                        }
+                    </p>
                 )}
+
             </div>
 
+            {/* APS comparisons */}
+            <h2>APS Comparisons</h2>
 
-            <h2>Best Matches For You</h2>
+            {hasApsScore ? (
+                <div className="university-cards">
 
-            <div className="university-cards">
-                {sortedUniversities.map((uni) => (
-                    <UniversityCard
-                        key={uni.code}
-                        university={uni}
-                    >
-                        {apsScore !== null && (
+                    {sortedUniversities.map((uni) => (
+                        <UniversityCard
+                            key={uni.id ?? uni.code}
+                            university={uni}
+                        >
                             <p>
-                                <strong>Match:</strong> {uni.match}%
+                                <strong>APS Requirement:</strong> {uni.aps}
                             </p>
-                        )}
-                    </UniversityCard>
-                ))}
-            </div>
 
+                            <p>
+                                <strong>Your APS comparison:</strong>{" "}
+                                {getApsComparison(uni)}
+                            </p>
+                        </UniversityCard>
+                    ))}
 
+                </div>
+            ) : (
+                <p>
+                    Calculate your APS score to compare it with university requirements.
+                </p>
+            )}
 
+            {/* Featured universities */}
             <h2>Featured Universities</h2>
 
             <input
                 type="text"
-                placeholder="Search university...."
+                placeholder="Search university..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
 
             <div className="university-cards">
-                {filteredUniversities.map((uni) => (
-                    <UniversityCard
-                        key={uni.code}
-                        university={uni}
-                        clickable={true}
-                    >
-                        <small>{uni.description}</small>
 
-                        {apsScore !== null && (
-                            <>
-                                <p>{getQualification(uni)}</p>
+                {filteredUniversities.length > 0 ? (
+                    filteredUniversities.map((uni) => (
+                        <UniversityCard
+                            key={uni.id ?? uni.code}
+                            university={uni}
+                            clickable={true}
+                        >
+                            <small>{uni.description}</small>
 
-                                <span className={`badge ${getBadge(uni).toLowerCase()}`}>
-                                    {getBadge(uni)}
-                                </span>
+                            {hasApsScore && (
+                                <p>{getQualification(
+                                    universitiesWithComparison.find(
+                                        (item) => item.id === uni.id
+                                    ) || uni
+                                )}</p>
+                            )}
 
-                            </>
-                        )}
-                    </UniversityCard>
-                 ))}
+                        </UniversityCard>
+                    ))
+                ) : (
+                    <p>No universities match your search.</p>
+                )}
 
-                
-            </div> 
+            </div>
 
+            <p>
+                Meeting a university's listed APS threshold does not
+                guarantee admission. Additional subject and programme
+                requirements may apply.
+            </p>
 
-
-        </section>      
+        </section>
     );
 }
 

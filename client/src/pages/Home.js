@@ -15,18 +15,30 @@ function Home({ apsScore, setApsScore }) {
                     <h1>Your future starts here.</h1>
 
                     <p>
-                        Dsicover South African universities, explore courses, 
-                        calculate your APS score, and make confident decisions 
+                        Discover South African universities, explore courses,
+                        calculate your APS score, and make confident decisions
                         about your academic journey.
                     </p>
 
                     <div className = "hero-buttons">
-                        <button className = "primary-btn">
+                        <button className = "primary-btn"
+                            onClick={() => {
+                                document.getElementById("aps-calculator")?.scrollIntoView({
+                                    behavior: "smooth"
+                                });
+                            }}
+                        >
                             🎯 Calculate APS
                         </button>
 
 
-                        <button className = "secondary-btn">
+                        <button className = "secondary-btn"
+                            onClick={() => {
+                                document.getElementById("universities")?.scrollIntoView({
+                                    behavior: "smooth"
+                                });
+                            }}
+                        >
                             🏫 Explore Universities
                         </button>
                     </div>
@@ -48,7 +60,7 @@ function Home({ apsScore, setApsScore }) {
                         <div className = "feature-item">
                             ✔ Course Explorer
                         </div>
-                        
+
                     </div>
 
                 </div>

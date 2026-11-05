@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import UniversitiesPage from "./pages/UniversitiesPage";
 import APSPage from "./pages/APSPage";
 import CoursesPage from "./pages/CoursePage";
+import NotFound from "./pages/NotFound";
 
 import Layout from "./components/layout/Layout";
 
@@ -63,6 +64,15 @@ function App() {
             <UniversityDetail apsScore={apsScore} />
           </Layout>
         }
+      />
+
+      <Route
+        path="*"
+        element={
+          <Layout>
+            <NotFound />
+          </Layout>
+       }
       />
 
     </Routes>
